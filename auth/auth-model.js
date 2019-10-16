@@ -8,7 +8,7 @@ module.exports = {
 };
 
 function findUsersAuth() {
-  return db("usersAuth3");
+  return db("usersAuth3").select("id","userName","department");
 }
 
 function findUserAuthById(id) {

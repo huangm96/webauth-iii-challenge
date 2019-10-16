@@ -5,15 +5,20 @@ const jwt = require("jsonwebtoken");
 const secret = require("../config/secrets");
 const router = express.Router();
 const restricted = require("./restricted-middleware.js")
+const checkDepartment = require('./checkDepartment-middleware.js')
 
-router.get("/api/users", restricted, (req, res) => {
+
+router.get("/api/users", restricted, checkDepartment('Accounting'), (req, res) => {
   authModel
     .findUsersAuth()
     .then(users => {
       if (!users[0]) {
         res.json(null);
-      }
-      res.json(users);
+        }
+        const departmentUsers = users.filter(d => {
+           return d.department === "Accounting"
+        })
+      res.json({loggedInUser:req.user.userName, departmentUsers});
     })
     .catch(error => {
       res.status(500).json({ message: "Failed to get users list", error });
