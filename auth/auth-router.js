@@ -1,10 +1,12 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const authModel = require("./auth-model.js");
-
+const jwt = require("jsonwebtoken");
+const secret = require("../config/secrets");
 const router = express.Router();
+const restricted = require("./restricted-middleware.js")
 
-router.get("/api/users", (req, res) => {
+router.get("/api/users", restricted, (req, res) => {
   authModel
     .findUsersAuth()
     .then(users => {
@@ -37,8 +39,9 @@ router.post("/api/login", (req, res) => {
     .findUserAuthByUserName(req.body.userName)
     .then(user => {
       if (user && bcrypt.compareSync(req.body.password, user.password)) {
-       
-        res.status(200).json({ message: `Hi! ${user.userName}` });
+          const token = generateToken(user)
+          
+        res.status(200).json({ message: `Hi! ${user.userName}`,token });
       } else {
         res.status(401).json({ message: "You cannot pass" });
       }
@@ -48,5 +51,15 @@ router.post("/api/login", (req, res) => {
     });
 });
 
-
+function generateToken(user) {
+  const payload = {
+    userName: user.userName,
+    subject: user.id,
+    department: user.department
+  };
+  const options = {
+    expiresIn: "1h"
+  };
+  return jwt.sign(payload, secret.jwtSecret, options);
+}
 module.exports = router;
