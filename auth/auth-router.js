@@ -8,7 +8,7 @@ const restricted = require("./restricted-middleware.js")
 const checkDepartment = require('./checkDepartment-middleware.js')
 
 
-router.get("/api/users", restricted, checkDepartment('Accounting'), (req, res) => {
+router.get("/api/users/accounting", restricted, checkDepartment('Accounting'), (req, res) => {
   authModel
     .findUsersAuth()
     .then(users => {
@@ -17,6 +17,23 @@ router.get("/api/users", restricted, checkDepartment('Accounting'), (req, res) =
         }
         const departmentUsers = users.filter(d => {
            return d.department === "Accounting"
+        })
+      res.json({loggedInUser:req.user.userName, departmentUsers});
+    })
+    .catch(error => {
+      res.status(500).json({ message: "Failed to get users list", error });
+    });
+});
+
+router.get("/api/users/tech", restricted, checkDepartment('Tech'), (req, res) => {
+  authModel
+    .findUsersAuth()
+    .then(users => {
+      if (!users[0]) {
+        res.json(null);
+        }
+        const departmentUsers = users.filter(d => {
+           return d.department === "Tech"
         })
       res.json({loggedInUser:req.user.userName, departmentUsers});
     })
