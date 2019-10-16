@@ -6,7 +6,7 @@ const secret = require("../config/secrets");
 const router = express.Router();
 const restricted = require("./restricted-middleware.js")
 const checkDepartment = require('./checkDepartment-middleware.js')
-
+const checkInput = require('./checkInput-middleware.js')
 
 router.get("/api/users/accounting", restricted, checkDepartment('Accounting'), (req, res) => {
   authModel
@@ -42,7 +42,7 @@ router.get("/api/users/tech", restricted, checkDepartment('Tech'), (req, res) =>
     });
 });
 
-router.post("/api/register",  (req, res) => {
+router.post("/api/register", checkInput, (req, res) => {
   const hash = bcrypt.hashSync(req.body.password, 14);
   req.body.password = hash;
 
@@ -56,7 +56,7 @@ router.post("/api/register",  (req, res) => {
     });
 });
 
-router.post("/api/login", (req, res) => {
+router.post("/api/login", checkInput, (req, res) => {
   authModel
     .findUserAuthByUserName(req.body.userName)
     .then(user => {
