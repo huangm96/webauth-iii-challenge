@@ -20,7 +20,7 @@ server.get("/", (req, res) => {
 });
 
 server.use("/", authRouter);
-const port = process.env.PORT || 6666;
+const port = process.env.PORT || 5656;
 
 server.listen(port, () => {
   console.log(`\nThe server is listening on ${port}`);
